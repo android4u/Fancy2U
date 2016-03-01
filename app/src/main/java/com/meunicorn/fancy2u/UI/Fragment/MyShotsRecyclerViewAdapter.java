@@ -14,12 +14,13 @@ import com.meunicorn.fancy2u.Bean.Shots.Shot;
 import com.meunicorn.fancy2u.R;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecyclerViewAdapter.ViewHolder> {
 
-    List<Shot> shotList;
+    List<Shot> shotList=new ArrayList<>();
     private final ShotFragment.OnListFragmentInteractionListener mListener;
     Context mContext;
 

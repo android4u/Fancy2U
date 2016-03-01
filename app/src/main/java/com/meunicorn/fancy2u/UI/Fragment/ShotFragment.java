@@ -36,13 +36,19 @@ import java.util.List;
  * interface.
  */
 public class ShotFragment extends Fragment {
-    List<Shot> shotList=new ArrayList<>();
+    List<Shot> shotList = new ArrayList<>();
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private int page = 1;
+    MyShotsRecyclerViewAdapter adapter;
+    private int previousTotal = 0; // The total number of items in the dataset after the last load
+    private boolean loading = true; // True if we are still waiting for the last set of data to load.
+    private int visibleThreshold = 5; // The minimum amount of items to have below your current scroll position before loading more.
+    int firstVisibleItem, visibleItemCount, totalItemCount;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -74,22 +80,59 @@ public class ShotFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_shots_list, container, false);
-        JsonArrayRequest jsonArrayRequest=new JsonArrayRequest("https://api.dribbble.com/v1/shots?access_token="+ getResources().getString(R.string.dribbble_api_key),
+        adapter = new MyShotsRecyclerViewAdapter(getContext(), getShots(), mListener);
+        // Set the adapter
+
+        Context context = view.getContext();
+        RecyclerView recyclerView = (RecyclerView) view;
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                visibleItemCount = recyclerView.getChildCount();
+                totalItemCount = linearLayoutManager.getItemCount();
+                firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
+                if (loading) {
+                    if (totalItemCount > previousTotal) {
+                        loading = false;
+                        previousTotal = totalItemCount;
+                    }
+                }
+                if (!loading && (totalItemCount - visibleItemCount)
+                        <= (firstVisibleItem + visibleThreshold)) {
+                    // End has been reached
+
+
+                    // Do something
+                    page++;
+                    getShots();
+                    loading = true;
+                }
+            }
+        });
+        return view;
+    }
+
+    private List<Shot> getShots() {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest("https://api.dribbble.com/v1/shots?page=" + page + "&access_token=" + getResources().getString(R.string.dribbble_api_key),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
+                        Log.i("APIconnect", "https://api.dribbble.com/v1/shots?page=" + page + "&access_token=" + getResources().getString(R.string.dribbble_api_key));
                         for (int i = 0; i < response.length(); i++) {
-                            Shot shot=new Shot();
+                            Shot shot = new Shot();
                             try {
                                 shot.setTitle(response.getJSONObject(i).getString("title"));
                                 shot.setDescription(response.getJSONObject(i).getString("description"));
                                 shot.setViewsCount(response.getJSONObject(i).getInt("views_count"));
                                 shot.setLikesCount(response.getJSONObject(i).getInt("likes_count"));
                                 shot.setCommentsCount(response.getJSONObject(i).getInt("comments_count"));
-                                User user=new User();
+                                User user = new User();
                                 user.setName(response.getJSONObject(i).getJSONObject("user").getString("name"));
                                 shot.setUser(user);
-                                Images images=new Images();
+                                Images images = new Images();
                                 images.setNormal(response.getJSONObject(i).getJSONObject("images").getString("normal"));
                                 shot.setImages(images);
                                 shotList.add(shot);
@@ -97,18 +140,7 @@ public class ShotFragment extends Fragment {
                                 e.printStackTrace();
                             }
                         }
-
-                        // Set the adapter
-                        if (view instanceof RecyclerView) {
-                            Context context = view.getContext();
-                            RecyclerView recyclerView = (RecyclerView) view;
-                            if (mColumnCount <= 1) {
-                                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-                            } else {
-                                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-                            }
-                            recyclerView.setAdapter(new MyShotsRecyclerViewAdapter(getContext(),shotList, mListener));
-                        }
+                        adapter.notifyDataSetChanged();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -117,8 +149,7 @@ public class ShotFragment extends Fragment {
             }
         });
         Volley.newRequestQueue(getContext()).add(jsonArrayRequest);
-
-        return view;
+        return shotList;
     }
 
 
