@@ -14,7 +14,11 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import android.widget.SpinnerAdapter
 import android.widget.Toast
 import com.meunicorn.fancy2u.Bean.Shots.Shot
 import com.meunicorn.fancy2u.R
@@ -25,9 +29,9 @@ import com.meunicorn.fancy2u.UI.Fragment.dummy.DummyContent
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener ,DummyFragment.OnFragmentInteractionListener,ShotFragment.OnListFragmentInteractionListener{
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, DummyFragment.OnFragmentInteractionListener, ShotFragment.OnListFragmentInteractionListener {
     override fun onListFragmentInteraction(item: Shot) {
-        Toast.makeText(this@MainActivity,item.title,Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@MainActivity, item.title, Toast.LENGTH_SHORT).show()
     }
 
     override fun onFragmentInteraction(uri: Uri?) {
@@ -52,13 +56,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById(R.id.nav_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
         initViewPager()
+
     }
 
     private fun initViewPager() {
-        val adapter:ShotFragmentViewPagerAdapter= ShotFragmentViewPagerAdapter(supportFragmentManager)
-        adapter.addFragment(ShotFragment(),"newest")
-        adapter.addFragment(DummyFragment(),"trending")
-        vp_main_display.adapter=adapter
+        val adapter: ShotFragmentViewPagerAdapter = ShotFragmentViewPagerAdapter(supportFragmentManager)
+        adapter.addFragment(ShotFragment.newInstance("popluarity"), resources.getString(R.string.popular))
+        adapter.addFragment(ShotFragment.newInstance("recent"), resources.getString(R.string.recent))
+        adapter.addFragment(ShotFragment.newInstance("comments"),resources.getString(R.string.comments))
+        adapter.addFragment(ShotFragment.newInstance("views"),resources.getString(R.string.views))
+        vp_main_display.adapter = adapter
         tab_main_title.setupWithViewPager(vp_main_display)
     }
 

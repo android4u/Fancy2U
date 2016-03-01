@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,18 +38,21 @@ import java.util.List;
  */
 public class ShotFragment extends Fragment {
     List<Shot> shotList = new ArrayList<>();
+    SwipeRefreshLayout swipeRefresh;
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
+    private String orderType="popularity";//default order
     private OnListFragmentInteractionListener mListener;
     private int page = 1;
     MyShotsRecyclerViewAdapter adapter;
     private int previousTotal = 0; // The total number of items in the dataset after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
-    private int visibleThreshold = 5; // The minimum amount of items to have below your current scroll position before loading more.
+    private int visibleThreshold = 1; // The minimum amount of items to have below your current scroll position before loading more.
     int firstVisibleItem, visibleItemCount, totalItemCount;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -59,10 +63,10 @@ public class ShotFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static ShotFragment newInstance(int columnCount) {
+    public static ShotFragment newInstance(String columnCount) {
         ShotFragment fragment = new ShotFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putString("type",columnCount);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,7 +76,7 @@ public class ShotFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            orderType = getArguments().getString("type");
         }
     }
 
@@ -80,14 +84,31 @@ public class ShotFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_shots_list, container, false);
+        swipeRefresh= (SwipeRefreshLayout) view.findViewById(R.id.srl_shots_refresh);
         adapter = new MyShotsRecyclerViewAdapter(getContext(), getShots(), mListener);
         // Set the adapter
 
-        Context context = view.getContext();
-        RecyclerView recyclerView = (RecyclerView) view;
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_shotslist_shot);
+        recyclerViewMethod(recyclerView);
         recyclerView.setAdapter(adapter);
+        swipeRefreshMethod(swipeRefresh);
+        Log.i("TYPE", "onCreateView: "+orderType);
+
+        return view;
+    }
+
+    private void swipeRefreshMethod(SwipeRefreshLayout swipeRefresh) {
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getShots();
+            }
+        });
+    }
+
+    private void recyclerViewMethod(RecyclerView recyclerView) {
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -104,7 +125,6 @@ public class ShotFragment extends Fragment {
                         <= (firstVisibleItem + visibleThreshold)) {
                     // End has been reached
 
-
                     // Do something
                     page++;
                     getShots();
@@ -112,15 +132,16 @@ public class ShotFragment extends Fragment {
                 }
             }
         });
-        return view;
     }
 
     private List<Shot> getShots() {
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest("https://api.dribbble.com/v1/shots?page=" + page + "&access_token=" + getResources().getString(R.string.dribbble_api_key),
+        swipeRefresh.setRefreshing(true);
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest("https://api.dribbble.com/v1/shots?page=" + page + "&sort="+orderType+"&access_token=" + getResources().getString(R.string.dribbble_api_key),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        Log.i("APIconnect", "https://api.dribbble.com/v1/shots?page=" + page + "&access_token=" + getResources().getString(R.string.dribbble_api_key));
+                        swipeRefresh.setRefreshing(false);
+                        Log.i("APIconnect", "https://api.dribbble.com/v1/shots?page=" + page +"&sort="+orderType+ "&access_token=" + getResources().getString(R.string.dribbble_api_key));
                         for (int i = 0; i < response.length(); i++) {
                             Shot shot = new Shot();
                             try {
