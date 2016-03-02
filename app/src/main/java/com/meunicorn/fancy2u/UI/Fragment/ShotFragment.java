@@ -3,6 +3,7 @@ package com.meunicorn.fancy2u.UI.Fragment;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,11 +50,12 @@ public class ShotFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     private int page = 1;
     MyShotsRecyclerViewAdapter adapter;
+    static int refreshFirstVisibleItem, refreshVisibleItemCount, refreshTotalItemCount;
     private int previousTotal = 0; // The total number of items in the dataset after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
     private int visibleThreshold = 1; // The minimum amount of items to have below your current scroll position before loading more.
     int firstVisibleItem, visibleItemCount, totalItemCount;
-
+    RecyclerView recyclerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -85,23 +88,26 @@ public class ShotFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_shots_list, container, false);
         swipeRefresh= (SwipeRefreshLayout) view.findViewById(R.id.srl_shots_refresh);
-        adapter = new MyShotsRecyclerViewAdapter(getContext(), getShots(), mListener);
+        adapter = new MyShotsRecyclerViewAdapter(getContext(), shotList, mListener);
         // Set the adapter
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_shotslist_shot);
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv_shotslist_shot);
         recyclerViewMethod(recyclerView);
         recyclerView.setAdapter(adapter);
         swipeRefreshMethod(swipeRefresh);
         Log.i("TYPE", "onCreateView: "+orderType);
-
+        getShots();
         return view;
     }
 
-    private void swipeRefreshMethod(SwipeRefreshLayout swipeRefresh) {
+    private void swipeRefreshMethod(final SwipeRefreshLayout swipeRefresh) {
+        // TODO: 2016/3/2 add refresh
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getShots();
+                // TODO: 2016/3/2 finish refresh
+                swipeRefresh.setRefreshing(false);
+                Snackbar.make(recyclerView,"刷新功能暂未完善",Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -115,6 +121,7 @@ public class ShotFragment extends Fragment {
                 visibleItemCount = recyclerView.getChildCount();
                 totalItemCount = linearLayoutManager.getItemCount();
                 firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
+
                 if (loading) {
                     if (totalItemCount > previousTotal) {
                         loading = false;
@@ -123,9 +130,6 @@ public class ShotFragment extends Fragment {
                 }
                 if (!loading && (totalItemCount - visibleItemCount)
                         <= (firstVisibleItem + visibleThreshold)) {
-                    // End has been reached
-
-                    // Do something
                     page++;
                     getShots();
                     loading = true;
@@ -134,14 +138,13 @@ public class ShotFragment extends Fragment {
         });
     }
 
-    private List<Shot> getShots() {
+    private void getShots() {
         swipeRefresh.setRefreshing(true);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest("https://api.dribbble.com/v1/shots?page=" + page + "&sort="+orderType+"&access_token=" + getResources().getString(R.string.dribbble_api_key),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        swipeRefresh.setRefreshing(false);
-                        Log.i("APIconnect", "https://api.dribbble.com/v1/shots?page=" + page +"&sort="+orderType+ "&access_token=" + getResources().getString(R.string.dribbble_api_key));
+                        Log.i("PAGE", "PAGE: "+page);
                         for (int i = 0; i < response.length(); i++) {
                             Shot shot = new Shot();
                             try {
@@ -162,15 +165,17 @@ public class ShotFragment extends Fragment {
                             }
                         }
                         adapter.notifyDataSetChanged();
+                        swipeRefresh.setRefreshing(false);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                swipeRefresh.setRefreshing(false);
+                Toast.makeText(getContext(), "网络连接失败", Toast.LENGTH_SHORT).show();
             }
         });
         Volley.newRequestQueue(getContext()).add(jsonArrayRequest);
-        return shotList;
+
     }
 
 

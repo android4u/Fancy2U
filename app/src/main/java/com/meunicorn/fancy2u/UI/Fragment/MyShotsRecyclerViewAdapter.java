@@ -67,6 +67,12 @@ public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecy
         return shotList.size();
     }
 
+    public void refreshShots(List<Shot> shots){
+        this.shotList.clear();
+        this.shotList.addAll(shots);
+        notifyDataSetChanged();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public CardView shotCv;
@@ -96,5 +102,6 @@ public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecy
         public String toString() {
             return super.toString() + " '" + titieTv.getText() + "'";
         }
+
     }
 }
