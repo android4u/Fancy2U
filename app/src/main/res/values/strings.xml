@@ -13,4 +13,13 @@
     <string name="comments">comments</string>
     <string name="views">views</string>
 
+    <string name="login">Login</string>
+    
+    <string name="mainpage">MainPage</string>
+    <string name="buckets">Buckets</string>
+    <string name="followers">Followers</string>
+    <string name="likes">Likes</string>
+    <string name="projects">Projects</string>
+    <string name="shots">Shots</string>
+    <string name="teams">Teams</string>
 </resources>

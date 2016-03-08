@@ -103,17 +103,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         val id = item.itemId
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_mainpage) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_buckets) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_follwers) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_likes) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_projects) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_shots) {
+
+        }else if (id == R.id.nav_teams) {
+
+        }else if (id == R.id.nav_about) {
 
         }
 
