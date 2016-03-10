@@ -1,5 +1,6 @@
 package com.meunicorn.fancy2u.UI.Activivty
 
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
@@ -20,6 +21,7 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.SpinnerAdapter
 import android.widget.Toast
+import com.jakewharton.scalpel.ScalpelFrameLayout
 import com.meunicorn.fancy2u.Bean.Shots.Shot
 import com.meunicorn.fancy2u.R
 import com.meunicorn.fancy2u.UI.Adapter.ShotFragmentViewPagerAdapter
@@ -40,7 +42,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        val mainView=layoutInflater.inflate(R.layout.activity_main,null)
+        val mScalpeView:ScalpelFrameLayout= ScalpelFrameLayout(this)
+        mScalpeView.addView(mainView)
+        mScalpeView.isLayerInteractionEnabled=true
+        mScalpeView.chromeColor = Color.parseColor("#34B9E4")
+        setContentView(mScalpeView)
+//        setContentView
+        mScalpeView.setDrawViews(true)
+
+
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
