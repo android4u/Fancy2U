@@ -1,36 +1,31 @@
 package com.meunicorn.fancy2u.UI.Fragment;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.meunicorn.fancy2u.Bean.Shots.Images;
+import com.meunicorn.fancy2u.API.ShotsApi;
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
-import com.meunicorn.fancy2u.Bean.Shots.User;
 import com.meunicorn.fancy2u.R;
-import com.meunicorn.fancy2u.Util.GsonRequest;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A fragment representing a list of Items.
@@ -96,7 +91,7 @@ public class ShotFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         swipeRefreshMethod(swipeRefresh);
         Log.i("TYPE", "onCreateView: "+orderType);
-        getShots();
+        new Thread(runnable).start();
         return view;
     }
 
@@ -131,52 +126,45 @@ public class ShotFragment extends Fragment {
                 if (!loading && (totalItemCount - visibleItemCount)
                         <= (firstVisibleItem + visibleThreshold)) {
                     page++;
-                    getShots();
+                    new Thread(runnable).start();
                     loading = true;
                 }
             }
         });
     }
 
-    private void getShots() {
-        swipeRefresh.setRefreshing(true);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest("https://api.dribbble.com/v1/shots?page=" + page + "&sort="+orderType+"&access_token=" + getResources().getString(R.string.dribbble_api_key),
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.i("PAGE", "PAGE: "+page);
-                        for (int i = 0; i < response.length(); i++) {
-                            Shot shot = new Shot();
-                            try {
-                                shot.setTitle(response.getJSONObject(i).getString("title"));
-                                shot.setDescription(response.getJSONObject(i).getString("description"));
-                                shot.setViewsCount(response.getJSONObject(i).getInt("views_count"));
-                                shot.setLikesCount(response.getJSONObject(i).getInt("likes_count"));
-                                shot.setCommentsCount(response.getJSONObject(i).getInt("comments_count"));
-                                User user = new User();
-                                user.setName(response.getJSONObject(i).getJSONObject("user").getString("name"));
-                                shot.setUser(user);
-                                Images images = new Images();
-                                images.setNormal(response.getJSONObject(i).getJSONObject("images").getString("normal"));
-                                shot.setImages(images);
-                                shotList.add(shot);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                        swipeRefresh.setRefreshing(false);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                swipeRefresh.setRefreshing(false);
-                Toast.makeText(getContext(), "网络连接失败", Toast.LENGTH_SHORT).show();
-            }
-        });
-        Volley.newRequestQueue(getContext()).add(jsonArrayRequest);
-
+    private List<Shot> getShots() throws IOException {
+        String API="https://api.dribbble.com/v1/";
+        Retrofit retrofit=new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
+        ShotsApi shotsApi=retrofit.create(ShotsApi.class);
+        Call<List<Shot>> shot=shotsApi.getShotList();
+        return shot.execute().body();
     }
+    Runnable runnable=new Runnable() {
+        @Override
+        public void run() {
+            Bundle bundle=new Bundle();
+            Message message=new Message();
+            try {
+                bundle.putParcelableArrayList("shots", (ArrayList<? extends Parcelable>) getShots());
+                message.setData(bundle);
+                handler.sendMessage(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data=msg.getData();
+            List<Shot> shots=data.getParcelableArrayList("shots");
+            Log.i("SHOTS", "getShots: "+data.size());
+            adapter=new MyShotsRecyclerViewAdapter(getContext(),shots,mListener);
+        }
+    };
 
 
     @Override

@@ -1,5 +1,5 @@
 
-package com.meunicorn.fancy2u.Bean.Shots;
+package com.meunicorn.fancy2u.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -9,8 +9,7 @@ import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
-public class Shot  implements Parcelable{
+public class ShotsModel implements Parcelable{
 
     @SerializedName("id")
     @Expose
@@ -91,7 +90,7 @@ public class Shot  implements Parcelable{
     @Expose
     private String reboundSourceUrl;
 
-    protected Shot(Parcel in) {
+    protected ShotsModel(Parcel in) {
         title = in.readString();
         description = in.readString();
         createdAt = in.readString();
@@ -107,15 +106,15 @@ public class Shot  implements Parcelable{
         reboundSourceUrl = in.readString();
     }
 
-    public static final Creator<Shot> CREATOR = new Creator<Shot>() {
+    public static final Creator<ShotsModel> CREATOR = new Creator<ShotsModel>() {
         @Override
-        public Shot createFromParcel(Parcel in) {
-            return new Shot(in);
+        public ShotsModel createFromParcel(Parcel in) {
+            return new ShotsModel(in);
         }
 
         @Override
-        public Shot[] newArray(int size) {
-            return new Shot[size];
+        public ShotsModel[] newArray(int size) {
+            return new ShotsModel[size];
         }
     };
 
