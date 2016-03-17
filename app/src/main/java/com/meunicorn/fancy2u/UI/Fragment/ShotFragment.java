@@ -46,7 +46,7 @@ public class ShotFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private String orderType="popularity";//default order
+    private String orderType = "popularity";//default order
     private OnListFragmentInteractionListener mListener;
     private int page = 1;
     MyShotsRecyclerViewAdapter adapter;
@@ -71,7 +71,7 @@ public class ShotFragment extends Fragment {
     public static ShotFragment newInstance(String columnCount) {
         ShotFragment fragment = new ShotFragment();
         Bundle args = new Bundle();
-        args.putString("type",columnCount);
+        args.putString("type", columnCount);
         fragment.setArguments(args);
         return fragment;
     }
@@ -89,7 +89,7 @@ public class ShotFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_shots_list, container, false);
-        swipeRefresh= (SwipeRefreshLayout) view.findViewById(R.id.srl_shots_refresh);
+        swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.srl_shots_refresh);
         adapter = new MyShotsRecyclerViewAdapter(getContext(), shotList, mListener);
         // Set the adapter
 
@@ -98,7 +98,7 @@ public class ShotFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         swipeRefreshMethod(swipeRefresh);
         // TODO: 2016/3/17 init data
-            if (shotList.isEmpty()){
+        if (shotList.isEmpty()) {
             getShots();
         }
         return view;
@@ -109,9 +109,9 @@ public class ShotFragment extends Fragment {
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // TODO: 2016/3/2 finish refresh
-                swipeRefresh.setRefreshing(false);
-                Snackbar.make(recyclerView,"刷新功能暂未完善",Snackbar.LENGTH_SHORT).show();
+                page = 1;
+                shotList.clear();
+                getShots();
             }
         });
     }
@@ -121,18 +121,15 @@ public class ShotFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
-                if(dy > 0) //check for scroll down
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) //check for scroll down
                 {
                     visibleItemCount = linearLayoutManager.getChildCount();
                     totalItemCount = linearLayoutManager.getItemCount();
                     pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
 
-                    if (loading)
-                    {
-                        if ( (visibleItemCount + pastVisiblesItems) >= totalItemCount)
-                        {
+                    if (loading) {
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
                             loading = false;
                             getShots();
                         }
@@ -143,23 +140,23 @@ public class ShotFragment extends Fragment {
     }
 
     private void getShots() {
-        String API="https://api.dribbble.com/";
+        String API = "https://api.dribbble.com/";
         swipeRefresh.post(new Runnable() {
             @Override
             public void run() {
                 swipeRefresh.setRefreshing(true);
             }
         });
-        Retrofit retrofit=new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
-        ShotsApi shotsApi=retrofit.create(ShotsApi.class);
-        final Call<List<Shot>> shot=shotsApi.getShotListOrderby(orderType,page,getResources().getString(R.string.dribbble_api_key));
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
+        ShotsApi shotsApi = retrofit.create(ShotsApi.class);
+        final Call<List<Shot>> shot = shotsApi.getShotListOrderby(orderType, page, getResources().getString(R.string.dribbble_api_key));
         shot.enqueue(new Callback<List<Shot>>() {
             @Override
             public void onResponse(Call<List<Shot>> call, Response<List<Shot>> response) {
                 shotList.addAll(response.body());
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);
-                loading=true;
+                loading = true;
                 page++;
             }
 
