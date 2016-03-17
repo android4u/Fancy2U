@@ -1,5 +1,6 @@
 package com.meunicorn.fancy2u.UI.Fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,10 +11,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.meunicorn.fancy2u.API.ShotsApi;
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
@@ -24,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -49,7 +54,9 @@ public class ShotFragment extends Fragment {
     private int previousTotal = 0; // The total number of items in the dataset after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
     private int visibleThreshold = 1; // The minimum amount of items to have below your current scroll position before loading more.
-    int firstVisibleItem, visibleItemCount, totalItemCount;
+//    int firstVisibleItem, visibleItemCount, totalItemCount;
+
+    int pastVisiblesItems, visibleItemCount, totalItemCount;
     RecyclerView recyclerView;
 
     /**
@@ -90,8 +97,10 @@ public class ShotFragment extends Fragment {
         recyclerViewMethod(recyclerView);
         recyclerView.setAdapter(adapter);
         swipeRefreshMethod(swipeRefresh);
-        Log.i("TYPE", "onCreateView: "+orderType);
-        new Thread(runnable).start();
+        // TODO: 2016/3/17 init data
+            if (shotList.isEmpty()){
+            getShots();
+        }
         return view;
     }
 
@@ -112,60 +121,55 @@ public class ShotFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                visibleItemCount = recyclerView.getChildCount();
-                totalItemCount = linearLayoutManager.getItemCount();
-                firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            {
+                if(dy > 0) //check for scroll down
+                {
+                    visibleItemCount = linearLayoutManager.getChildCount();
+                    totalItemCount = linearLayoutManager.getItemCount();
+                    pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
 
-                if (loading) {
-                    if (totalItemCount > previousTotal) {
-                        loading = false;
-                        previousTotal = totalItemCount;
+                    if (loading)
+                    {
+                        if ( (visibleItemCount + pastVisiblesItems) >= totalItemCount)
+                        {
+                            loading = false;
+                            getShots();
+                        }
                     }
-                }
-                if (!loading && (totalItemCount - visibleItemCount)
-                        <= (firstVisibleItem + visibleThreshold)) {
-                    page++;
-                    new Thread(runnable).start();
-                    loading = true;
                 }
             }
         });
     }
 
-    private List<Shot> getShots() throws IOException {
-        String API="https://api.dribbble.com/v1/";
+    private void getShots() {
+        String API="https://api.dribbble.com/";
+        swipeRefresh.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefresh.setRefreshing(true);
+            }
+        });
         Retrofit retrofit=new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
         ShotsApi shotsApi=retrofit.create(ShotsApi.class);
-        Call<List<Shot>> shot=shotsApi.getShotList();
-        return shot.execute().body();
-    }
-    Runnable runnable=new Runnable() {
-        @Override
-        public void run() {
-            Bundle bundle=new Bundle();
-            Message message=new Message();
-            try {
-                bundle.putParcelableArrayList("shots", (ArrayList<? extends Parcelable>) getShots());
-                message.setData(bundle);
-                handler.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
+        final Call<List<Shot>> shot=shotsApi.getShotListOrderby(orderType,page,getResources().getString(R.string.dribbble_api_key));
+        shot.enqueue(new Callback<List<Shot>>() {
+            @Override
+            public void onResponse(Call<List<Shot>> call, Response<List<Shot>> response) {
+                Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
+                shotList.addAll(response.body());
+                adapter.notifyDataSetChanged();
+                swipeRefresh.setRefreshing(false);
+                loading=true;
+                page++;
             }
-        }
-    };
 
-    Handler handler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Bundle data=msg.getData();
-            List<Shot> shots=data.getParcelableArrayList("shots");
-            Log.i("SHOTS", "getShots: "+data.size());
-            adapter=new MyShotsRecyclerViewAdapter(getContext(),shots,mListener);
-        }
-    };
-
+            @Override
+            public void onFailure(Call<List<Shot>> call, Throwable t) {
+                Toast.makeText(getContext(), "fail", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     @Override
     public void onAttach(Context context) {

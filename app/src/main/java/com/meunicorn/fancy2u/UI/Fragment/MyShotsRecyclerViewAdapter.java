@@ -44,7 +44,11 @@ public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecy
         holder.mItem = item;
         holder.titieTv.setText(item.getTitle());
         holder.designerTv.setText(item.getUser().getName());
+        try{
         holder.descriptionTv.setText(Html.fromHtml(item.getDescription()));
+        }catch (Exception e){
+            //Description may be null
+        }
         holder.viewsTv.setText(item.getViewsCount().toString());
         holder.likeTv.setText(item.getLikesCount().toString());
         holder.commentTv.setText(item.getCommentsCount().toString());
