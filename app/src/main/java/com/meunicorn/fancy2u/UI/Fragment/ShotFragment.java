@@ -156,7 +156,6 @@ public class ShotFragment extends Fragment {
         shot.enqueue(new Callback<List<Shot>>() {
             @Override
             public void onResponse(Call<List<Shot>> call, Response<List<Shot>> response) {
-                Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
                 shotList.addAll(response.body());
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);
@@ -166,7 +165,7 @@ public class ShotFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Shot>> call, Throwable t) {
-                Toast.makeText(getContext(), "fail", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }
