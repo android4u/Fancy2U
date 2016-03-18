@@ -1,28 +1,20 @@
 package com.meunicorn.fancy2u.UI.Fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.meunicorn.fancy2u.API.ShotsApi;
+import com.meunicorn.fancy2u.API.DribbbleApi;
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
 import com.meunicorn.fancy2u.R;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,7 +140,7 @@ public class ShotFragment extends Fragment {
             }
         });
         Retrofit retrofit = new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
-        ShotsApi shotsApi = retrofit.create(ShotsApi.class);
+        DribbbleApi shotsApi = retrofit.create(DribbbleApi.class);
         final Call<List<Shot>> shot = shotsApi.getShotListOrderby(orderType, page, getResources().getString(R.string.dribbble_api_key));
         shot.enqueue(new Callback<List<Shot>>() {
             @Override

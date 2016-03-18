@@ -1,6 +1,8 @@
 package com.meunicorn.fancy2u.UI.Fragment;
 
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
 import com.meunicorn.fancy2u.R;
 import com.squareup.picasso.Picasso;
@@ -53,7 +56,6 @@ public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecy
         holder.likeTv.setText(item.getLikesCount().toString());
         holder.commentTv.setText(item.getCommentsCount().toString());
         Picasso.with(mContext).load(shotList.get(position).getImages().getNormal()).into(holder.shotIv);
-
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
