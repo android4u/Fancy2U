@@ -1,7 +1,9 @@
 package com.meunicorn.fancy2u.UI.Activivty
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.os.Message
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.view.View
@@ -16,16 +18,12 @@ import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.SpinnerAdapter
-import android.widget.Toast
+import android.widget.*
 import com.meunicorn.fancy2u.Bean.Shots.Shot
 import com.meunicorn.fancy2u.R
 import com.meunicorn.fancy2u.UI.Adapter.ShotFragmentViewPagerAdapter
 import com.meunicorn.fancy2u.UI.Fragment.DummyFragment
 import com.meunicorn.fancy2u.UI.Fragment.ShotFragment
-import com.meunicorn.fancy2u.UI.Fragment.dummy.DummyContent
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
@@ -56,7 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById(R.id.nav_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
         initViewPager()
-
     }
 
     private fun initViewPager() {

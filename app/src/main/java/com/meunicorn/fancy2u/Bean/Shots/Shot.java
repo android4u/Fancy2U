@@ -1,13 +1,16 @@
 
 package com.meunicorn.fancy2u.Bean.Shots;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
-public class Shot {
+public class Shot  implements Parcelable{
 
     @SerializedName("id")
     @Expose
@@ -87,6 +90,34 @@ public class Shot {
     @SerializedName("rebound_source_url")
     @Expose
     private String reboundSourceUrl;
+
+    protected Shot(Parcel in) {
+        title = in.readString();
+        description = in.readString();
+        createdAt = in.readString();
+        updatedAt = in.readString();
+        htmlUrl = in.readString();
+        attachmentsUrl = in.readString();
+        bucketsUrl = in.readString();
+        commentsUrl = in.readString();
+        likesUrl = in.readString();
+        projectsUrl = in.readString();
+        reboundsUrl = in.readString();
+        tags = in.createStringArrayList();
+        reboundSourceUrl = in.readString();
+    }
+
+    public static final Creator<Shot> CREATOR = new Creator<Shot>() {
+        @Override
+        public Shot createFromParcel(Parcel in) {
+            return new Shot(in);
+        }
+
+        @Override
+        public Shot[] newArray(int size) {
+            return new Shot[size];
+        }
+    };
 
     /**
      * 
@@ -556,4 +587,25 @@ public class Shot {
         this.reboundSourceUrl = reboundSourceUrl;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeString(createdAt);
+        dest.writeString(updatedAt);
+        dest.writeString(htmlUrl);
+        dest.writeString(attachmentsUrl);
+        dest.writeString(bucketsUrl);
+        dest.writeString(commentsUrl);
+        dest.writeString(likesUrl);
+        dest.writeString(projectsUrl);
+        dest.writeString(reboundsUrl);
+        dest.writeStringList(tags);
+        dest.writeString(reboundSourceUrl);
+    }
 }

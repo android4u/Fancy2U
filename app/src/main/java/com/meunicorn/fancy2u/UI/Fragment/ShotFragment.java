@@ -1,36 +1,28 @@
 package com.meunicorn.fancy2u.UI.Fragment;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.meunicorn.fancy2u.Bean.Shots.Images;
+import com.meunicorn.fancy2u.API.DribbbleApi;
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
-import com.meunicorn.fancy2u.Bean.Shots.User;
 import com.meunicorn.fancy2u.R;
-import com.meunicorn.fancy2u.Util.GsonRequest;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A fragment representing a list of Items.
@@ -46,7 +38,7 @@ public class ShotFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private String orderType="popularity";//default order
+    private String orderType = "popularity";//default order
     private OnListFragmentInteractionListener mListener;
     private int page = 1;
     MyShotsRecyclerViewAdapter adapter;
@@ -54,7 +46,9 @@ public class ShotFragment extends Fragment {
     private int previousTotal = 0; // The total number of items in the dataset after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
     private int visibleThreshold = 1; // The minimum amount of items to have below your current scroll position before loading more.
-    int firstVisibleItem, visibleItemCount, totalItemCount;
+//    int firstVisibleItem, visibleItemCount, totalItemCount;
+
+    int pastVisiblesItems, visibleItemCount, totalItemCount;
     RecyclerView recyclerView;
 
     /**
@@ -69,7 +63,7 @@ public class ShotFragment extends Fragment {
     public static ShotFragment newInstance(String columnCount) {
         ShotFragment fragment = new ShotFragment();
         Bundle args = new Bundle();
-        args.putString("type",columnCount);
+        args.putString("type", columnCount);
         fragment.setArguments(args);
         return fragment;
     }
@@ -87,7 +81,7 @@ public class ShotFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_shots_list, container, false);
-        swipeRefresh= (SwipeRefreshLayout) view.findViewById(R.id.srl_shots_refresh);
+        swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.srl_shots_refresh);
         adapter = new MyShotsRecyclerViewAdapter(getContext(), shotList, mListener);
         // Set the adapter
 
@@ -95,8 +89,10 @@ public class ShotFragment extends Fragment {
         recyclerViewMethod(recyclerView);
         recyclerView.setAdapter(adapter);
         swipeRefreshMethod(swipeRefresh);
-        Log.i("TYPE", "onCreateView: "+orderType);
-        getShots();
+        // TODO: 2016/3/17 init data
+        if (shotList.isEmpty()) {
+            getShots();
+        }
         return view;
     }
 
@@ -105,9 +101,9 @@ public class ShotFragment extends Fragment {
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // TODO: 2016/3/2 finish refresh
-                swipeRefresh.setRefreshing(false);
-                Snackbar.make(recyclerView,"刷新功能暂未完善",Snackbar.LENGTH_SHORT).show();
+                page = 1;
+                shotList.clear();
+                getShots();
             }
         });
     }
@@ -118,66 +114,50 @@ public class ShotFragment extends Fragment {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                visibleItemCount = recyclerView.getChildCount();
-                totalItemCount = linearLayoutManager.getItemCount();
-                firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
+                if (dy > 0) //check for scroll down
+                {
+                    visibleItemCount = linearLayoutManager.getChildCount();
+                    totalItemCount = linearLayoutManager.getItemCount();
+                    pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
 
-                if (loading) {
-                    if (totalItemCount > previousTotal) {
-                        loading = false;
-                        previousTotal = totalItemCount;
+                    if (loading) {
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                            loading = false;
+                            getShots();
+                        }
                     }
-                }
-                if (!loading && (totalItemCount - visibleItemCount)
-                        <= (firstVisibleItem + visibleThreshold)) {
-                    page++;
-                    getShots();
-                    loading = true;
                 }
             }
         });
     }
 
     private void getShots() {
-        swipeRefresh.setRefreshing(true);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest("https://api.dribbble.com/v1/shots?page=" + page + "&sort="+orderType+"&access_token=" + getResources().getString(R.string.dribbble_api_key),
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.i("PAGE", "PAGE: "+page);
-                        for (int i = 0; i < response.length(); i++) {
-                            Shot shot = new Shot();
-                            try {
-                                shot.setTitle(response.getJSONObject(i).getString("title"));
-                                shot.setDescription(response.getJSONObject(i).getString("description"));
-                                shot.setViewsCount(response.getJSONObject(i).getInt("views_count"));
-                                shot.setLikesCount(response.getJSONObject(i).getInt("likes_count"));
-                                shot.setCommentsCount(response.getJSONObject(i).getInt("comments_count"));
-                                User user = new User();
-                                user.setName(response.getJSONObject(i).getJSONObject("user").getString("name"));
-                                shot.setUser(user);
-                                Images images = new Images();
-                                images.setNormal(response.getJSONObject(i).getJSONObject("images").getString("normal"));
-                                shot.setImages(images);
-                                shotList.add(shot);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                        swipeRefresh.setRefreshing(false);
-                    }
-                }, new Response.ErrorListener() {
+        String API = "https://api.dribbble.com/";
+        swipeRefresh.post(new Runnable() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                swipeRefresh.setRefreshing(false);
-                Toast.makeText(getContext(), "网络连接失败", Toast.LENGTH_SHORT).show();
+            public void run() {
+                swipeRefresh.setRefreshing(true);
             }
         });
-        Volley.newRequestQueue(getContext()).add(jsonArrayRequest);
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
+        DribbbleApi shotsApi = retrofit.create(DribbbleApi.class);
+        final Call<List<Shot>> shot = shotsApi.getShotListOrderby(orderType, page, getResources().getString(R.string.dribbble_api_key));
+        shot.enqueue(new Callback<List<Shot>>() {
+            @Override
+            public void onResponse(Call<List<Shot>> call, Response<List<Shot>> response) {
+                shotList.addAll(response.body());
+                adapter.notifyDataSetChanged();
+                swipeRefresh.setRefreshing(false);
+                loading = true;
+                page++;
+            }
 
+            @Override
+            public void onFailure(Call<List<Shot>> call, Throwable t) {
+                Toast.makeText(getContext(), t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
-
 
     @Override
     public void onAttach(Context context) {
