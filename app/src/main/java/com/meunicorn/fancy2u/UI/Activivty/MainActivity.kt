@@ -1,6 +1,7 @@
 package com.meunicorn.fancy2u.UI.Activivty
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Message
@@ -24,12 +25,15 @@ import com.meunicorn.fancy2u.R
 import com.meunicorn.fancy2u.UI.Adapter.ShotFragmentViewPagerAdapter
 import com.meunicorn.fancy2u.UI.Fragment.DummyFragment
 import com.meunicorn.fancy2u.UI.Fragment.ShotFragment
+import com.meunicorn.fancy2u.Utils.ActivityStart
+import com.meunicorn.fancy2u.Utils.SpUtil
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, DummyFragment.OnFragmentInteractionListener, ShotFragment.OnListFragmentInteractionListener {
     override fun onListFragmentInteraction(item: Shot) {
         Toast.makeText(this@MainActivity, item.title, Toast.LENGTH_SHORT).show()
+        ActivityStart.toDetail(this,item)
     }
 
     override fun onFragmentInteraction(uri: Uri?) {
@@ -42,8 +46,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
+
         val fab = findViewById(R.id.fab) as FloatingActionButton
-        fab.setOnClickListener { view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show() }
+//        fab.setOnClickListener { view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show() }
+        fab.setOnClickListener { view -> ActivityStart.toLogin(this) }
 
         val drawer = findViewById(R.id.drawer_layout) as DrawerLayout
         val toggle = ActionBarDrawerToggle(

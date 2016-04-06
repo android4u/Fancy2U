@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,6 +94,7 @@ public class ShotFragment extends Fragment {
         if (shotList.isEmpty()) {
             getShots();
         }
+        testSearch();
         return view;
     }
 
@@ -102,7 +104,7 @@ public class ShotFragment extends Fragment {
             @Override
             public void onRefresh() {
                 page = 1;
-                shotList.clear();
+
                 getShots();
             }
         });
@@ -131,6 +133,25 @@ public class ShotFragment extends Fragment {
         });
     }
 
+    private void testSearch(){
+        String API = "https://api.dribbble.com/";
+        final String TAG="SEARCH TEST ";
+        Retrofit retrofit=new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
+        DribbbleApi testapi=retrofit.create(DribbbleApi.class);
+        Call<Shot> test=testapi.findShotById(471756,getResources().getString(R.string.dribbble_api_key));
+        test.enqueue(new Callback<Shot>() {
+            @Override
+            public void onResponse(Call<Shot> call, Response<Shot> response) {
+                Log.i(TAG, "onResponse: "+response.message());
+            }
+
+            @Override
+            public void onFailure(Call<Shot> call, Throwable t) {
+                Log.i(TAG, "onFailure: "+t.toString());
+            }
+        });
+    }
+
     private void getShots() {
         String API = "https://api.dribbble.com/";
         swipeRefresh.post(new Runnable() {
@@ -145,6 +166,7 @@ public class ShotFragment extends Fragment {
         shot.enqueue(new Callback<List<Shot>>() {
             @Override
             public void onResponse(Call<List<Shot>> call, Response<List<Shot>> response) {
+                shotList.clear();
                 shotList.addAll(response.body());
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);

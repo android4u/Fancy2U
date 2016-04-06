@@ -3,9 +3,11 @@ package com.meunicorn.fancy2u.API;
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
 
 import java.util.List;
+import java.util.Properties;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 /**
@@ -18,4 +20,9 @@ public interface DribbbleApi {
 
     @GET("v1/shots")
     Call<List<Shot>> getShotListOrderby(@Query("sort") String sort,@Query("page") int page,@Query("access_token") String token);
+
+    @GET("v1/shots/{id}")
+    Call<Shot> findShotById(@Query("id") int id,@Query("access_token") String token);
+
+    
 }
