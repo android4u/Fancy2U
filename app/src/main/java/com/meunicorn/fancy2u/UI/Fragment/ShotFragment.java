@@ -34,6 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ShotFragment extends Fragment {
     List<Shot> shotList = new ArrayList<>();
     SwipeRefreshLayout swipeRefresh;
+    Boolean isRefresh=false;
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -104,7 +105,7 @@ public class ShotFragment extends Fragment {
             @Override
             public void onRefresh() {
                 page = 1;
-
+                isRefresh=true;
                 getShots();
             }
         });
@@ -166,7 +167,10 @@ public class ShotFragment extends Fragment {
         shot.enqueue(new Callback<List<Shot>>() {
             @Override
             public void onResponse(Call<List<Shot>> call, Response<List<Shot>> response) {
-                shotList.clear();
+                if (isRefresh){
+                    shotList.clear();
+                    isRefresh=false;
+                }
                 shotList.addAll(response.body());
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);
