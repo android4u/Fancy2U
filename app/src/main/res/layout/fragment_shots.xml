@@ -23,7 +23,9 @@
                 android:layout_height="220dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/selfie" />
+                android:src="@drawable/selfie"
+                android:transitionName="transition_shot"
+                />
 
             <TextView
                 android:id="@+id/tv_shots_title"
@@ -34,7 +36,9 @@
                 android:background="@color/colorAccent"
                 android:text="This is the test title"
                 android:textColor="@color/white"
-                android:textSize="28sp" />
+                android:transitionName="transition_title"
+
+                android:textSize="@dimen/shot_tv_title" />
 
             <LinearLayout
                 android:id="@+id/ll_shots_info"
@@ -51,8 +55,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nick Kumbari"
+                    android:transitionName="transition_designer"
                     android:textColor="@color/primaryText"
-                    android:textSize="20sp" />
+                    android:textSize="@dimen/shot_tv_author" />
 
                 <TextView
                     android:id="@+id/tv_shots_description"

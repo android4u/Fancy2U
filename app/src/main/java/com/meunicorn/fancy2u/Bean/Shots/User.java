@@ -1,10 +1,13 @@
 
 package com.meunicorn.fancy2u.Bean.Shots;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class User {
+public class User implements Parcelable{
 
     @SerializedName("id")
     @Expose
@@ -96,6 +99,37 @@ public class User {
     @SerializedName("updated_at")
     @Expose
     private String updatedAt;
+
+    protected User(Parcel in) {
+        name = in.readString();
+        username = in.readString();
+        htmlUrl = in.readString();
+        avatarUrl = in.readString();
+        bio = in.readString();
+        location = in.readString();
+        type = in.readString();
+        bucketsUrl = in.readString();
+        followersUrl = in.readString();
+        followingUrl = in.readString();
+        likesUrl = in.readString();
+        projectsUrl = in.readString();
+        shotsUrl = in.readString();
+        teamsUrl = in.readString();
+        createdAt = in.readString();
+        updatedAt = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 
     /**
      * 
@@ -637,4 +671,28 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(username);
+        dest.writeString(htmlUrl);
+        dest.writeString(avatarUrl);
+        dest.writeString(bio);
+        dest.writeString(location);
+        dest.writeString(type);
+        dest.writeString(bucketsUrl);
+        dest.writeString(followersUrl);
+        dest.writeString(followingUrl);
+        dest.writeString(likesUrl);
+        dest.writeString(projectsUrl);
+        dest.writeString(shotsUrl);
+        dest.writeString(teamsUrl);
+        dest.writeString(createdAt);
+        dest.writeString(updatedAt);
+    }
 }

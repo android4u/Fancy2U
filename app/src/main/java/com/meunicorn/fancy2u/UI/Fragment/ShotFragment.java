@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 import com.meunicorn.fancy2u.API.DribbbleApi;
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
 import com.meunicorn.fancy2u.R;
+import com.meunicorn.fancy2u.UI.Adapter.MyShotsRecyclerViewAdapter;
+import com.meunicorn.fancy2u.Utils.DribbbleConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ShotFragment extends Fragment {
     List<Shot> shotList = new ArrayList<>();
     SwipeRefreshLayout swipeRefresh;
+    Boolean isRefresh=false;
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -93,6 +97,7 @@ public class ShotFragment extends Fragment {
         if (shotList.isEmpty()) {
             getShots();
         }
+        testSearch();
         return view;
     }
 
@@ -102,7 +107,7 @@ public class ShotFragment extends Fragment {
             @Override
             public void onRefresh() {
                 page = 1;
-                shotList.clear();
+                isRefresh=true;
                 getShots();
             }
         });
@@ -131,20 +136,42 @@ public class ShotFragment extends Fragment {
         });
     }
 
-    private void getShots() {
+    private void testSearch(){
         String API = "https://api.dribbble.com/";
+        final String TAG="SEARCH TEST ";
+        Retrofit retrofit=new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
+        DribbbleApi testapi=retrofit.create(DribbbleApi.class);
+        Call<Shot> test=testapi.findShotById(471756,getResources().getString(R.string.dribbble_api_key));
+        test.enqueue(new Callback<Shot>() {
+            @Override
+            public void onResponse(Call<Shot> call, Response<Shot> response) {
+                Log.i(TAG, "onResponse: "+response.message());
+            }
+
+            @Override
+            public void onFailure(Call<Shot> call, Throwable t) {
+                Log.i(TAG, "onFailure: "+t.toString());
+            }
+        });
+    }
+
+    private void getShots() {
         swipeRefresh.post(new Runnable() {
             @Override
             public void run() {
                 swipeRefresh.setRefreshing(true);
             }
         });
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(DribbbleConstant.API).addConverterFactory(GsonConverterFactory.create()).build();
         DribbbleApi shotsApi = retrofit.create(DribbbleApi.class);
         final Call<List<Shot>> shot = shotsApi.getShotListOrderby(orderType, page, getResources().getString(R.string.dribbble_api_key));
         shot.enqueue(new Callback<List<Shot>>() {
             @Override
             public void onResponse(Call<List<Shot>> call, Response<List<Shot>> response) {
+                if (isRefresh){
+                    shotList.clear();
+                    isRefresh=false;
+                }
                 shotList.addAll(response.body());
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);
