@@ -1,5 +1,6 @@
 package com.meunicorn.fancy2u.UI.Activivty
 
+import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -32,7 +33,6 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, DummyFragment.OnFragmentInteractionListener, ShotFragment.OnListFragmentInteractionListener {
     override fun onListFragmentInteraction(item: Shot) {
-        Toast.makeText(this@MainActivity, item.title, Toast.LENGTH_SHORT).show()
         ActivityStart.toDetail(this,item)
     }
 
@@ -45,8 +45,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
-
-
         val fab = findViewById(R.id.fab) as FloatingActionButton
 //        fab.setOnClickListener { view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show() }
         fab.setOnClickListener { view -> ActivityStart.toLogin(this) }
@@ -84,6 +82,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
+        val searchItem:MenuItem=menu.findItem(R.id.search_shot)
+        val searchManager:SearchManager= this@MainActivity.getSystemService(Context.SEARCH_SERVICE) as SearchManager;
+
+
         return true
     }
 

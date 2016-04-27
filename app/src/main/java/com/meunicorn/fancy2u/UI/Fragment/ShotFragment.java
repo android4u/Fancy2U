@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.meunicorn.fancy2u.API.DribbbleApi;
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
 import com.meunicorn.fancy2u.R;
+import com.meunicorn.fancy2u.UI.Adapter.MyShotsRecyclerViewAdapter;
+import com.meunicorn.fancy2u.Utils.DribbbleConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,14 +156,13 @@ public class ShotFragment extends Fragment {
     }
 
     private void getShots() {
-        String API = "https://api.dribbble.com/";
         swipeRefresh.post(new Runnable() {
             @Override
             public void run() {
                 swipeRefresh.setRefreshing(true);
             }
         });
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(API).addConverterFactory(GsonConverterFactory.create()).build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(DribbbleConstant.API).addConverterFactory(GsonConverterFactory.create()).build();
         DribbbleApi shotsApi = retrofit.create(DribbbleApi.class);
         final Call<List<Shot>> shot = shotsApi.getShotListOrderby(orderType, page, getResources().getString(R.string.dribbble_api_key));
         shot.enqueue(new Callback<List<Shot>>() {

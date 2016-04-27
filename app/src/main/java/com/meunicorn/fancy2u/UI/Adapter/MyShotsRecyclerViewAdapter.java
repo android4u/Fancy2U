@@ -1,8 +1,6 @@
-package com.meunicorn.fancy2u.UI.Fragment;
+package com.meunicorn.fancy2u.UI.Adapter;
 
 import android.content.Context;
-import android.graphics.BlurMaskFilter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -11,10 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.meunicorn.fancy2u.Bean.Shots.Shot;
 import com.meunicorn.fancy2u.R;
+import com.meunicorn.fancy2u.UI.Fragment.ShotFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -23,14 +21,14 @@ import java.util.List;
 
 public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecyclerViewAdapter.ViewHolder> {
 
-    List<Shot> shotList=new ArrayList<>();
+    List<Shot> shotList = new ArrayList<>();
     private final ShotFragment.OnListFragmentInteractionListener mListener;
     Context mContext;
 
-    public MyShotsRecyclerViewAdapter(Context context,List<Shot>shots, ShotFragment.OnListFragmentInteractionListener listener) {
-        shotList=shots;
+    public MyShotsRecyclerViewAdapter(Context context, List<Shot> shots, ShotFragment.OnListFragmentInteractionListener listener) {
+        shotList = shots;
         mListener = listener;
-        mContext=context;
+        mContext = context;
     }
 
 
@@ -47,10 +45,11 @@ public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecy
         holder.mItem = item;
         holder.titieTv.setText(item.getTitle());
         holder.designerTv.setText(item.getUser().getName());
-        try{
-        holder.descriptionTv.setText(Html.fromHtml(item.getDescription()));
+        try {
+            holder.descriptionTv.setVisibility(View.VISIBLE);
+            holder.descriptionTv.setText(Html.fromHtml(item.getDescription()));
         }catch (Exception e){
-            //Description may be null
+            holder.descriptionTv.setVisibility(View.GONE);
         }
         holder.viewsTv.setText(item.getViewsCount().toString());
         holder.likeTv.setText(item.getLikesCount().toString());
@@ -73,7 +72,7 @@ public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecy
         return shotList.size();
     }
 
-    public void refreshShots(List<Shot> shots){
+    public void refreshShots(List<Shot> shots) {
         this.shotList.clear();
         this.shotList.addAll(shots);
         notifyDataSetChanged();
@@ -94,14 +93,14 @@ public class MyShotsRecyclerViewAdapter extends RecyclerView.Adapter<MyShotsRecy
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            shotCv= (CardView) view.findViewById(R.id.cv_shots_card);
-            shotIv= (ImageView) view.findViewById(R.id.iv_shots_pic);
-            titieTv= (TextView) view.findViewById(R.id.tv_shots_title);
-            designerTv= (TextView) view.findViewById(R.id.tv_shots_designer);
-            descriptionTv= (TextView) view.findViewById(R.id.tv_shots_description);
-            viewsTv= (TextView) view.findViewById(R.id.tv_shots_views);
-            likeTv= (TextView) view.findViewById(R.id.tv_shots_like);
-            commentTv= (TextView) view.findViewById(R.id.tv_shots_comment);
+            shotCv = (CardView) view.findViewById(R.id.cv_shots_card);
+            shotIv = (ImageView) view.findViewById(R.id.iv_shots_pic);
+            titieTv = (TextView) view.findViewById(R.id.tv_shots_title);
+            designerTv = (TextView) view.findViewById(R.id.tv_shots_designer);
+            descriptionTv = (TextView) view.findViewById(R.id.tv_shots_description);
+            viewsTv = (TextView) view.findViewById(R.id.tv_shots_views);
+            likeTv = (TextView) view.findViewById(R.id.tv_shots_like);
+            commentTv = (TextView) view.findViewById(R.id.tv_shots_comment);
         }
 
         @Override

@@ -6,11 +6,12 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
-public class Shot  implements Parcelable{
+public class Shot implements Parcelable {
 
     @SerializedName("id")
     @Expose
@@ -92,8 +93,10 @@ public class Shot  implements Parcelable{
     private String reboundSourceUrl;
 
     protected Shot(Parcel in) {
+        id = in.readInt();
         title = in.readString();
         description = in.readString();
+        images = in.readParcelable(Images.class.getClassLoader());
         createdAt = in.readString();
         updatedAt = in.readString();
         htmlUrl = in.readString();
@@ -105,6 +108,13 @@ public class Shot  implements Parcelable{
         reboundsUrl = in.readString();
         tags = in.createStringArrayList();
         reboundSourceUrl = in.readString();
+        user = in.readParcelable(User.class.getClassLoader());
+        viewsCount = in.readInt();
+        likesCount = in.readInt();
+        commentsCount = in.readInt();
+//        images=in.readParcelable(Images.class.getClassLoader());
+
+
     }
 
     public static final Creator<Shot> CREATOR = new Creator<Shot>() {
@@ -120,482 +130,379 @@ public class Shot  implements Parcelable{
     };
 
     /**
-     * 
-     * @return
-     *     The id
+     * @return The id
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * 
-     * @param id
-     *     The id
+     * @param id The id
      */
     public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     * 
-     * @return
-     *     The title
+     * @return The title
      */
     public String getTitle() {
         return title;
     }
 
     /**
-     * 
-     * @param title
-     *     The title
+     * @param title The title
      */
     public void setTitle(String title) {
         this.title = title;
     }
 
     /**
-     * 
-     * @return
-     *     The description
+     * @return The description
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * 
-     * @param description
-     *     The description
+     * @param description The description
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     * 
-     * @return
-     *     The width
+     * @return The width
      */
     public Integer getWidth() {
         return width;
     }
 
     /**
-     * 
-     * @param width
-     *     The width
+     * @param width The width
      */
     public void setWidth(Integer width) {
         this.width = width;
     }
 
     /**
-     * 
-     * @return
-     *     The height
+     * @return The height
      */
     public Integer getHeight() {
         return height;
     }
 
     /**
-     * 
-     * @param height
-     *     The height
+     * @param height The height
      */
     public void setHeight(Integer height) {
         this.height = height;
     }
 
     /**
-     * 
-     * @return
-     *     The images
+     * @return The images
      */
     public Images getImages() {
         return images;
     }
 
     /**
-     * 
-     * @param images
-     *     The images
+     * @param images The images
      */
     public void setImages(Images images) {
         this.images = images;
     }
 
     /**
-     * 
-     * @return
-     *     The viewsCount
+     * @return The viewsCount
      */
     public Integer getViewsCount() {
         return viewsCount;
     }
 
     /**
-     * 
-     * @param viewsCount
-     *     The views_count
+     * @param viewsCount The views_count
      */
     public void setViewsCount(Integer viewsCount) {
         this.viewsCount = viewsCount;
     }
 
     /**
-     * 
-     * @return
-     *     The likesCount
+     * @return The likesCount
      */
     public Integer getLikesCount() {
         return likesCount;
     }
 
     /**
-     * 
-     * @param likesCount
-     *     The likes_count
+     * @param likesCount The likes_count
      */
     public void setLikesCount(Integer likesCount) {
         this.likesCount = likesCount;
     }
 
     /**
-     * 
-     * @return
-     *     The commentsCount
+     * @return The commentsCount
      */
     public Integer getCommentsCount() {
         return commentsCount;
     }
 
     /**
-     * 
-     * @param commentsCount
-     *     The comments_count
+     * @param commentsCount The comments_count
      */
     public void setCommentsCount(Integer commentsCount) {
         this.commentsCount = commentsCount;
     }
 
     /**
-     * 
-     * @return
-     *     The attachmentsCount
+     * @return The attachmentsCount
      */
     public Integer getAttachmentsCount() {
         return attachmentsCount;
     }
 
     /**
-     * 
-     * @param attachmentsCount
-     *     The attachments_count
+     * @param attachmentsCount The attachments_count
      */
     public void setAttachmentsCount(Integer attachmentsCount) {
         this.attachmentsCount = attachmentsCount;
     }
 
     /**
-     * 
-     * @return
-     *     The reboundsCount
+     * @return The reboundsCount
      */
     public Integer getReboundsCount() {
         return reboundsCount;
     }
 
     /**
-     * 
-     * @param reboundsCount
-     *     The rebounds_count
+     * @param reboundsCount The rebounds_count
      */
     public void setReboundsCount(Integer reboundsCount) {
         this.reboundsCount = reboundsCount;
     }
 
     /**
-     * 
-     * @return
-     *     The bucketsCount
+     * @return The bucketsCount
      */
     public Integer getBucketsCount() {
         return bucketsCount;
     }
 
     /**
-     * 
-     * @param bucketsCount
-     *     The buckets_count
+     * @param bucketsCount The buckets_count
      */
     public void setBucketsCount(Integer bucketsCount) {
         this.bucketsCount = bucketsCount;
     }
 
     /**
-     * 
-     * @return
-     *     The createdAt
+     * @return The createdAt
      */
     public String getCreatedAt() {
         return createdAt;
     }
 
     /**
-     * 
-     * @param createdAt
-     *     The created_at
+     * @param createdAt The created_at
      */
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
     /**
-     * 
-     * @return
-     *     The updatedAt
+     * @return The updatedAt
      */
     public String getUpdatedAt() {
         return updatedAt;
     }
 
     /**
-     * 
-     * @param updatedAt
-     *     The updated_at
+     * @param updatedAt The updated_at
      */
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
     /**
-     * 
-     * @return
-     *     The htmlUrl
+     * @return The htmlUrl
      */
     public String getHtmlUrl() {
         return htmlUrl;
     }
 
     /**
-     * 
-     * @param htmlUrl
-     *     The html_url
+     * @param htmlUrl The html_url
      */
     public void setHtmlUrl(String htmlUrl) {
         this.htmlUrl = htmlUrl;
     }
 
     /**
-     * 
-     * @return
-     *     The attachmentsUrl
+     * @return The attachmentsUrl
      */
     public String getAttachmentsUrl() {
         return attachmentsUrl;
     }
 
     /**
-     * 
-     * @param attachmentsUrl
-     *     The attachments_url
+     * @param attachmentsUrl The attachments_url
      */
     public void setAttachmentsUrl(String attachmentsUrl) {
         this.attachmentsUrl = attachmentsUrl;
     }
 
     /**
-     * 
-     * @return
-     *     The bucketsUrl
+     * @return The bucketsUrl
      */
     public String getBucketsUrl() {
         return bucketsUrl;
     }
 
     /**
-     * 
-     * @param bucketsUrl
-     *     The buckets_url
+     * @param bucketsUrl The buckets_url
      */
     public void setBucketsUrl(String bucketsUrl) {
         this.bucketsUrl = bucketsUrl;
     }
 
     /**
-     * 
-     * @return
-     *     The commentsUrl
+     * @return The commentsUrl
      */
     public String getCommentsUrl() {
         return commentsUrl;
     }
 
     /**
-     * 
-     * @param commentsUrl
-     *     The comments_url
+     * @param commentsUrl The comments_url
      */
     public void setCommentsUrl(String commentsUrl) {
         this.commentsUrl = commentsUrl;
     }
 
     /**
-     * 
-     * @return
-     *     The likesUrl
+     * @return The likesUrl
      */
     public String getLikesUrl() {
         return likesUrl;
     }
 
     /**
-     * 
-     * @param likesUrl
-     *     The likes_url
+     * @param likesUrl The likes_url
      */
     public void setLikesUrl(String likesUrl) {
         this.likesUrl = likesUrl;
     }
 
     /**
-     * 
-     * @return
-     *     The projectsUrl
+     * @return The projectsUrl
      */
     public String getProjectsUrl() {
         return projectsUrl;
     }
 
     /**
-     * 
-     * @param projectsUrl
-     *     The projects_url
+     * @param projectsUrl The projects_url
      */
     public void setProjectsUrl(String projectsUrl) {
         this.projectsUrl = projectsUrl;
     }
 
     /**
-     * 
-     * @return
-     *     The reboundsUrl
+     * @return The reboundsUrl
      */
     public String getReboundsUrl() {
         return reboundsUrl;
     }
 
     /**
-     * 
-     * @param reboundsUrl
-     *     The rebounds_url
+     * @param reboundsUrl The rebounds_url
      */
     public void setReboundsUrl(String reboundsUrl) {
         this.reboundsUrl = reboundsUrl;
     }
 
     /**
-     * 
-     * @return
-     *     The animated
+     * @return The animated
      */
     public Boolean getAnimated() {
         return animated;
     }
 
     /**
-     * 
-     * @param animated
-     *     The animated
+     * @param animated The animated
      */
     public void setAnimated(Boolean animated) {
         this.animated = animated;
     }
 
     /**
-     * 
-     * @return
-     *     The tags
+     * @return The tags
      */
     public List<String> getTags() {
         return tags;
     }
 
     /**
-     * 
-     * @param tags
-     *     The tags
+     * @param tags The tags
      */
     public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
     /**
-     * 
-     * @return
-     *     The user
+     * @return The user
      */
     public User getUser() {
         return user;
     }
 
     /**
-     * 
-     * @param user
-     *     The user
+     * @param user The user
      */
     public void setUser(User user) {
         this.user = user;
     }
 
     /**
-     * 
-     * @return
-     *     The team
+     * @return The team
      */
     public Team getTeam() {
         return team;
     }
 
     /**
-     * 
-     * @param team
-     *     The team
+     * @param team The team
      */
     public void setTeam(Team team) {
         this.team = team;
     }
 
     /**
-     * 
-     * @return
-     *     The reboundSourceUrl
+     * @return The reboundSourceUrl
      */
     public String getReboundSourceUrl() {
         return reboundSourceUrl;
     }
 
     /**
-     * 
-     * @param reboundSourceUrl
-     *     The rebound_source_url
+     * @param reboundSourceUrl The rebound_source_url
      */
     public void setReboundSourceUrl(String reboundSourceUrl) {
         this.reboundSourceUrl = reboundSourceUrl;
     }
 
-    @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(description);
+        dest.writeParcelable(images, flags);
         dest.writeString(createdAt);
         dest.writeString(updatedAt);
         dest.writeString(htmlUrl);
@@ -607,5 +514,10 @@ public class Shot  implements Parcelable{
         dest.writeString(reboundsUrl);
         dest.writeStringList(tags);
         dest.writeString(reboundSourceUrl);
+        dest.writeParcelable(user, flags);
+        dest.writeInt(viewsCount);
+        dest.writeInt(likesCount);
+        dest.writeInt(commentsCount);
     }
+
 }
