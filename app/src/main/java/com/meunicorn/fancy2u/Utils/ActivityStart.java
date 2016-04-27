@@ -10,7 +10,6 @@ import com.meunicorn.fancy2u.Bean.Shots.Shot;
 import com.meunicorn.fancy2u.R;
 import com.meunicorn.fancy2u.UI.Activivty.DetailActivity;
 import com.meunicorn.fancy2u.UI.Activivty.LoginActivity;
-import com.meunicorn.fancy2u.UI.Activivty.MainActivity;
 
 /**
  * Created by Fancy on 2016/3/30.

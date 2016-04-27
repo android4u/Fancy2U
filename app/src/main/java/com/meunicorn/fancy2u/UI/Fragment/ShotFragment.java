@@ -64,7 +64,7 @@ public class ShotFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static ShotFragment newInstance(String columnCount) {
+    public ShotFragment newInstance(String columnCount) {
         ShotFragment fragment = new ShotFragment();
         Bundle args = new Bundle();
         args.putString("type", columnCount);
