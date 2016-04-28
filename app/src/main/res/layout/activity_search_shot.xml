@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.Activivty.MainActivity">
+    android:fitsSystemWindows="true"
+    tools:context="com.meunicorn.fancy2u.UI.Activivty.SearchShotActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
@@ -16,22 +17,18 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
-
-            <android.support.v7.widget.SearchView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/search_shot"/>
-        </android.support.v7.widget.Toolbar>
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tab_main_title"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+        <android.support.v7.widget.SearchView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            app:showDividers="end"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            app:queryBackground="@drawable/bg_rounded_search_view"
+            android:layout_height="wrap_content"></android.support.v7.widget.SearchView>
+
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/content_search_shot" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -39,6 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_favorite_border_white_24dp" />
+        android:src="@android:drawable/ic_dialog_email" />
 
 </android.support.design.widget.CoordinatorLayout>
